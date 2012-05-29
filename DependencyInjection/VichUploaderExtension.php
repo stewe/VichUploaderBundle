@@ -5,6 +5,7 @@ namespace Vich\UploaderBundle\DependencyInjection;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Config\FileLocator;
 use Vich\UploaderBundle\DependencyInjection\Configuration;
 
@@ -67,10 +68,6 @@ class VichUploaderExtension extends Extension
             $loader->load('twig.xml');
         }
 
-        if (isset($config['adapters']['rackspace'])) {
-            $container->setParameter('vich_uploader.storage.adapter.rackspace.media_container', $config['adapters']['rackspace']['media_container']);
-        }
-        
         $mappings = isset($config['mappings']) ? $config['mappings'] : array();
         $container->setParameter('vich_uploader.mappings', $mappings);
 
@@ -79,6 +76,21 @@ class VichUploaderExtension extends Extension
         $container->setParameter('vich_uploader.adapter.class', $this->adapterMap[$driver]);
         $container->getDefinition('vich_uploader.listener.uploader')->addTag($this->tagMap[$driver]);
 
+        if (isset($config['adapters']['rackspace'])) {
+            $container->setParameter('vich_uploader.storage.adapter.rackspace.media_container', $config['adapters']['rackspace']['media_container']);
+
+            $container->getDefinition('vich_uploader.storage.cdn')
+                ->addMethodCall('setCDNAdapter', array(new Reference('vich_uploader.storage.adapter.rackspace_cloud_files')));
+        }
+
+        if (isset($config['adapters']['amazon_s3'])) {
+            $container->setParameter('vich_uploader.storage.adapter', 'vich_uploader.storage.adapter.amazons3');
+            $container->setParameter('vich_uploader.storage.adapter.amazons3.bucket', $config['adapters']['amazon_s3']['bucket']);
+            $container->setParameter('vich_uploader.storage.adapter.amazons3.params', array('key' => $config['adapters']['amazon_s3']['key'], 'secret' => $config['adapters']['amazon_s3']['secret']));
+            
+            $container->getDefinition('vich_uploader.storage.cdn')
+                ->addMethodCall('setCDNAdapter', array(new Reference('vich_uploader.storage.adapter.amazons3')));
+        }
     }
 
 }

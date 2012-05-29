@@ -30,9 +30,18 @@ class CDNStorage implements StorageInterface
      *
      * @param \Vich\UploaderBundle\Mapping\PropertyMappingFactory $factory The factory.
      */
-    public function __construct(PropertyMappingFactory $factory, CDNAdapterInterface $cdnAdapter)
+    public function __construct(PropertyMappingFactory $factory)
     {
         $this->factory = $factory;
+    }
+
+    /**
+     * Set the CDN adapter
+     * 
+     * @param CDNAdapterInterface $cdnAdapter;
+     */
+    public function setCDNAdapter(CDNAdapterInterface $cdnAdapter)
+    {
         $this->cdnAdapter = $cdnAdapter;
     }
 
@@ -54,7 +63,7 @@ class CDNStorage implements StorageInterface
                 $name = $file->getClientOriginalName();
             }
 
-            $this->cdnAdapter->put($file->getPathName(), $name);
+            $this->cdnAdapter->put($file->getPathName(), $this->computePath($name, $mapping->getUploadDir()));
 
             $mapping->getFileNameProperty()->setValue($obj, $name);
         }
@@ -73,7 +82,7 @@ class CDNStorage implements StorageInterface
                     continue;
                 }
 
-                $this->cdnAdapter->remove($name);
+                $this->cdnAdapter->remove($this->computePath($name, $mapping->getUploadDir()));
             }
         }
     }
@@ -90,6 +99,22 @@ class CDNStorage implements StorageInterface
             ));
         }
 
-        return $this->cdnAdapter->getAbsoluteUri($mapping->getFileNameProperty()->getValue($obj));
+        return $this->cdnAdapter->getAbsoluteUri($this->computePath($mapping->getFileNameProperty()->getValue($obj), $mapping->getUploadDir()));
+    }
+
+    /**
+     * Computes the path for the specified filename
+     *
+     * @param  string $filename
+     *
+     * @return string
+     */
+    protected function computePath($filename, $directory = null)
+    {
+        if (null === $directory || '' === $directory) {
+            return $filename;
+        }
+
+        return sprintf('%s/%s', $directory, $filename);
     }
 }

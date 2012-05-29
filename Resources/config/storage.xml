@@ -4,6 +4,16 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
+    <parameters>
+        <parameter key="vich_uploader.storage.adapter.rackspace.media_container"></parameter>
+        <parameter key="vich_uploader.storage.adapter.amazons3.bucket"></parameter>
+        <parameter key="vich_uploader.storage.adapter.amazons3.params" type="collection">
+            <parameter key="key"></parameter>
+            <parameter key="secret"></parameter>
+        </parameter>
+        <parameter key="vich_uploader.storage.adapter">vich_uploader.storage.adapter.rackspace_cloud_files</parameter>
+    </parameters>
+
     <services>
         <service id="vich_uploader.storage.adapter.rackspace_cloud_files" class="Vich\UploaderBundle\Storage\Adapter\RackspaceCloudFilesAdapter">
             <call method="setContainer">
@@ -20,7 +30,6 @@
 
         <service id="vich_uploader.storage.cdn" class="Vich\UploaderBundle\Storage\CDNStorage">
             <argument type="service" id="vich_uploader.property_mapping_factory" />
-            <argument type="service" id="vich_uploader.storage.adapter.rackspace_cloud_files" />
         </service>
         
         <service 
@@ -29,6 +38,15 @@
             factory-service="vich_uploader.storage_factory" 
             factory-method ="createStorage">
                 
+        </service>
+
+        <service id="vich_uploader.storage.amazons3" class="AmazonS3">
+            <argument>%vich_uploader.storage.adapter.amazons3.params%</argument>
+        </service>
+
+        <service id="vich_uploader.storage.adapter.amazons3" class="Vich\UploaderBundle\Storage\Adapter\AmazonS3Adapter">
+            <argument type="service" id="vich_uploader.storage.amazons3" />
+            <argument>%vich_uploader.storage.adapter.amazons3.bucket%</argument>
         </service>
     </services>
 

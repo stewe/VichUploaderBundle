@@ -89,7 +89,8 @@ class CDNStorageTest extends \PHPUnit_Framework_TestCase
                 ->expects($this->once())
                 ->method('put');
 
-        $storage = new CDNStorage($this->factory, $this->cdnAdapter);
+        $storage = new CDNStorage($this->factory);
+        $storage->setCDNAdapter($this->cdnAdapter);
         $storage->upload($obj);
     }
     
@@ -126,7 +127,8 @@ class CDNStorageTest extends \PHPUnit_Framework_TestCase
                 ->with($obj)
                 ->will($this->returnValue(array($mapping)));
         
-        $storage = new CDNStorage($this->factory, $this->cdnAdapter);
+        $storage = new CDNStorage($this->factory);
+        $storage->setCDNAdapter($this->cdnAdapter);
         $storage->remove($obj);
     }
 
@@ -163,7 +165,8 @@ class CDNStorageTest extends \PHPUnit_Framework_TestCase
                 ->with($obj)
                 ->will($this->returnValue(array($mapping)));
 
-        $storage = new CDNStorage($this->factory, $this->cdnAdapter);
+        $storage = new CDNStorage($this->factory);
+        $storage->setCDNAdapter($this->cdnAdapter);
         $storage->upload($obj);
     }
 
@@ -204,7 +207,8 @@ class CDNStorageTest extends \PHPUnit_Framework_TestCase
                 ->with($obj)
                 ->will($this->returnValue(array($mapping)));
 
-        $storage = new CDNStorage($this->factory, $this->cdnAdapter);
+        $storage = new CDNStorage($this->factory);
+        $storage->setCDNAdapter($this->cdnAdapter);
         $storage->upload($obj);
     }
 
@@ -233,7 +237,8 @@ class CDNStorageTest extends \PHPUnit_Framework_TestCase
                 ->with($obj)
                 ->will($this->returnValue(array($mapping)));
 
-        $storage = new CDNStorage($this->factory, $this->cdnAdapter);
+        $storage = new CDNStorage($this->factory);
+        $storage->setCDNAdapter($this->cdnAdapter);
         $storage->remove($obj);
     }
 
@@ -275,7 +280,8 @@ class CDNStorageTest extends \PHPUnit_Framework_TestCase
                 ->with($obj)
                 ->will($this->returnValue(array($mapping)));
 
-        $storage = new CDNStorage($this->factory, $this->cdnAdapter);
+        $storage = new CDNStorage($this->factory);
+        $storage->setCDNAdapter($this->cdnAdapter);
         $storage->remove($obj);
     }
 
@@ -298,8 +304,9 @@ class CDNStorageTest extends \PHPUnit_Framework_TestCase
                 ->will($this->returnValue('file.txt'));
 
         $mapping
-                ->expects($this->never())
-                ->method('getUploadDir');
+                ->expects($this->once())
+                ->method('getUploadDir')
+                ->will($this->returnValue(null));
 
         $mapping
                 ->expects($this->once())
@@ -318,7 +325,8 @@ class CDNStorageTest extends \PHPUnit_Framework_TestCase
                 ->with('file.txt')
                 ->will($this->returnValue('http://testcdn.com/file.txt'));
         
-        $storage = new CDNStorage($this->factory, $this->cdnAdapter);
+        $storage = new CDNStorage($this->factory);
+        $storage->setCDNAdapter($this->cdnAdapter);
         $path = $storage->resolvePath($obj, 'file');
 
         $this->assertEquals('http://testcdn.com/file.txt', $path);
@@ -340,7 +348,8 @@ class CDNStorageTest extends \PHPUnit_Framework_TestCase
                 ->with($obj, 'oops')
                 ->will($this->returnValue(null));
 
-        $storage = new CDNStorage($this->factory, $this->cdnAdapter);
+        $storage = new CDNStorage($this->factory);
+        $storage->setCDNAdapter($this->cdnAdapter);
         $storage->resolvePath($obj, 'oops');
     }
 
