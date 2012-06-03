@@ -60,9 +60,10 @@ class AmazonS3Adapter implements CDNAdapterInterface
             throw new Exception\FileNotFound($filename);
         }
 
-        return $this->service
-            ->get_object($filename)
-            ->public_uri();
+        $response = $this->service
+            ->get_object($this->bucket, $filename);
+
+        return $response->header['_info']['url'];
     }
 
     /**
