@@ -38,6 +38,10 @@ class AmazonS3Adapter implements CDNAdapterInterface
      */
     public function put($filePath, $filename)
     {
+        if (false === is_object($filePath)) {
+            $filePath = sprintf('%s/%s', $filePath, $filename);
+        }
+
         $response = $this->service->create_object(
             $this->bucket,
             $filename,
