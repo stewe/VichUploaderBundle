@@ -38,7 +38,7 @@ class AmazonS3Adapter implements CDNAdapterInterface
      */
     public function put($filePath, $filename)
     {
-        if (false === is_object($filePath)) {
+        if (false === is_object($filePath) && file_exists(sprintf('%s/%s', $filePath, $filename))) {
             $filePath = sprintf('%s/%s', $filePath, $filename);
         }
 
